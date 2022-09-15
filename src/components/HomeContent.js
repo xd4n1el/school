@@ -47,7 +47,7 @@ const Title = styled(SimpleText)`
   }
 `;
 
-const Welcome = () => {
+const HomeContent = () => {
   return (
     <Wrapper>
       <Title>
@@ -70,4 +70,4 @@ const Welcome = () => {
   );
 };
 
-export default Welcome;
+export default HomeContent;

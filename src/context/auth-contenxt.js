@@ -24,13 +24,17 @@ export const AuthProvider = (props) => {
     if (online === "1") {
       const profile = localStorage.getItem("profile");
 
-      setUser(JSON.parse(profile));
-      return setIsLogin(true);
+      return setUser(JSON.parse(profile));
     }
-
     setUser({});
     setIsLogin(false);
   }, []);
+
+  useEffect(() => {
+    if (Object.values(user).length > 0) {
+      return setIsLogin(true);
+    }
+  }, [user]);
 
   const login = async (values) => {
     setError({});
@@ -38,7 +42,7 @@ export const AuthProvider = (props) => {
 
     try {
       const response = await axios.get(
-        `${FIREBASE_URL}/users.json?&orderBy="email"&equalTo="${typedEmail}"`
+        `${FIREBASE_URL}/users.json?&orderBy="email"&equalTo="${typedEmail.toLowerCase()}"`
       );
       const data = response.data;
 
@@ -66,6 +70,7 @@ export const AuthProvider = (props) => {
       localStorage.setItem("isLogin", "1");
       localStorage.setItem("profile", JSON.stringify(profile));
 
+      setUser(profile);
       setIsLogin(true);
     } catch (err) {
       if (err.message === "EMAIL") {

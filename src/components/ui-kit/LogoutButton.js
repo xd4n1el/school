@@ -5,6 +5,7 @@ import Box from "./Box";
 import ExpandButton from "./ExpandButton";
 import SimpleText from "./SimpleText";
 import { cutName } from "../../utils/functions/Functions";
+import LoaderMobile from "./LoaderMobile";
 
 const Wrapper = styled(Box)`
   align-items: center;
@@ -35,7 +36,11 @@ const LogouButton = (props) => {
 
   return (
     <Wrapper>
-      <Text>Oi, {`${name ? name : "Bem Vindo"}`}</Text>
+      { name ?
+        <Text>Oi, {`${name}`}</Text>
+        :
+        <LoaderMobile />
+      }
       <ExpandButton onClick={() => props.onClick()} />
     </Wrapper>
   );

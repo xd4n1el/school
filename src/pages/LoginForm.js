@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import AuthContext from "../context/auth-contenxt";
 import styled from "styled-components";
 import Background from "../components/ui-kit/Background";
@@ -8,7 +8,7 @@ import Title from "../components/ui-kit/Title";
 import InputShape from "../components/InputShape";
 import Button from "../components/ui-kit/Button";
 import FormFooter from "../components/ui-kit/FormFooter";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Navigate, NavLink, useNavigate } from "react-router-dom";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { breakpoints } from "../utils/screen/Breakpoints";
@@ -61,6 +61,16 @@ const schema = yup.object({
 const LoginForm = () => {
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
+  const [authError, setAuthError] = useState({});
+
+  useEffect(() => {
+    if (auth.error.email) {
+      return setAuthError({ email: true });
+    } else if (auth.error.password) {
+      return setAuthError({ password: true });
+    }
+    setAuthError({});
+  }, [auth.error]);
 
   useEffect(() => {
     if (auth.isLogin) {
@@ -70,70 +80,95 @@ const LoginForm = () => {
   }, [auth.isLogin]);
 
   return (
-    <Wrapper contentHeight="70%">
-      <Formik
-        initialValues={{
-          email: "",
-          password: "",
-        }}
-        validationSchema={schema}
-        onSubmit={(values) => {
-          auth.login(values);
-        }}
-      >
-        {({
-          errors,
-          touched,
-          values,
-          handleBlur,
-          handleChange,
-          handleSubmit,
-        }) => (
-          <Form height="550px" desktopHeight="650px" onSubmit={handleSubmit}>
-            <Title>
-              Bem-vindo(a) ao <br />
-              <b>portal dos pais</b>
-            </Title>
-            <InputsBox>
-              <InputShape
-                id="email"
-                label="Email"
-                showError={(errors.email && touched.email) || auth.error.email}
-                errorMessage={
-                  errors.email && touched.email ? errors.email : USER_NOT_FOUND
-                }
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.email}
-              />
-              <InputShape
-                type="password"
-                id="password"
-                label="Senha"
-                showError={
-                  (errors.password && touched.password) || auth.error.password
-                }
-                errorMessage={
-                  errors.password && touched.password
-                    ? errors.password
-                    : WRONG_PASSWORD
-                }
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.password}
-              />
-              <Link to="/">Esqueci minha senha</Link>
-            </InputsBox>
-            <Button type="submit">Entrar</Button>
-            <FormFooter
-              text="Ainda não tem cadastro?"
-              link="Criar conta"
-              navigate="/signup"
-            />
-          </Form>
-        )}
-      </Formik>
-    </Wrapper>
+    <>
+      {auth.isLogin ? (
+        <Navigate to="/home" />
+      ) : (
+        <Wrapper contentHeight="70%">
+          <Formik
+            initialValues={{
+              email: "",
+              password: "",
+            }}
+            validationSchema={schema}
+            onSubmit={(values) => {
+              auth.login(values);
+            }}
+          >
+            {({
+              errors,
+              touched,
+              values,
+              handleBlur,
+              handleChange,
+              handleSubmit,
+            }) => (
+              <Form
+                height="550px"
+                desktopHeight="650px"
+                onSubmit={handleSubmit}
+              >
+                <Title>
+                  Bem-vindo(a) ao <br />
+                  <b>portal dos pais</b>
+                </Title>
+                <InputsBox>
+                  <InputShape
+                    id="email"
+                    label="Email"
+                    showError={
+                      (errors.email && touched.email) || authError.email
+                    }
+                    errorMessage={
+                      errors.email && touched.email
+                        ? errors.email
+                        : USER_NOT_FOUND
+                    }
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.email}
+                    onFocus={() => {
+                      if (authError.email) {
+                        setAuthError({});
+                      }
+                    }}
+                  />
+                  <InputShape
+                    type="password"
+                    id="password"
+                    label="Senha"
+                    showError={
+                      (errors.password && touched.password) ||
+                      authError.password
+                    }
+                    errorMessage={
+                      errors.password && touched.password
+                        ? errors.password
+                        : WRONG_PASSWORD
+                    }
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    value={values.password}
+                    onFocus={() => {
+                      if (authError.password) {
+                        setAuthError({});
+                      }
+                    }}
+                  />
+                  <Link to="/">Esqueci minha senha</Link>
+                </InputsBox>
+                <Button type="submit">Entrar</Button>
+                <FormFooter
+                  text="Ainda não tem cadastro?"
+                  link="Criar conta"
+                  navigate="/signup"
+                />
+              </Form>
+            )}
+          </Formik>
+        </Wrapper>
+      )}
+    </>
   );
 };
 
